@@ -1,0 +1,104 @@
+#!/bin/bash
+: <<=cut
+
+=head1 NAME
+
+bscw-users - Plugin to monitor BSCW account usage
+
+=head1 APPLICABLE SYSTEMS
+
+All systems with a BSCW installation.
+
+=head1 CONFIGURATION
+
+The user running this plugin needs +x access to the bsadmin binary. You will
+need to add this:
+
+  [bscw-users]
+  user bscw
+
+=head1 MAGIC MARKERS
+
+  #%# family=auto
+  #%# capabilities=autoconf
+
+=head1 VERSION
+
+  0.0.1
+
+=head1 BUGS
+
+None found yet.
+
+=head1 AUTHOR
+
+Peter Schwindt <peter@schwindt-net.de>
+
+=head1 LICENSE
+
+GPLv2
+
+=cut
+
+
+###########################################
+# Configurable variables
+client=${client:-/opt/bscw/server/bsadmin}
+
+
+# Print the munin values
+values () {
+  registered=`${client} users -n |wc -l`
+  echo registered.value ${registered}
+  active14=`${client} users -n -o 14|wc -l`
+  active142=$((registered - active14))
+  echo active14.value ${active142}
+}
+
+# Print the munin config
+config() {
+  echo 'graph_title User accounts that are registered in BSCW'
+  echo 'graph_info This graph shows how many accounts are registered (and actively accessed) in BSCW'
+  echo 'graph_category bscw'
+  echo 'graph_vlabel Number of users'
+
+  echo 'graph_args --base 1000 -l 0'
+
+  echo 'registered.label registered accounts'
+  echo 'registered.warning 250'
+  echo 'registered.critical 290'
+  echo 'active14.label accounts that were active in the last 14 days'
+}
+
+# Print autoconfiguration hint
+autoconf() {
+  if [ -e ${client} ]
+  then
+    if [ -x ${client} ]
+    then
+      echo "yes"
+    else
+      echo "no (${client} is not executable)"
+    fi
+  else
+    echo "no (${client} not found)"
+  fi
+  exit
+}
+
+###########################################
+# Main
+
+case $1 in
+    config)
+        config
+        ;;
+    autoconf)
+        autoconf
+        ;;
+    *)
+        values
+        ;;
+esac
+
+
