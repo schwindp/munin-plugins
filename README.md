@@ -1,4 +1,1 @@
-There are a few plugins for [munin](http://munin-monitoring.org/) which I created while at work.
-I will be listing them here shortly, don't expect any surprising ideas ;-)
-
-Peter
+These are a few plugins for [munin](http://munin-monitoring.org/) which I found to be useful and didn't exist beforehand.
